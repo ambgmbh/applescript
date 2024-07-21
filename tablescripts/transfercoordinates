@@ -6,8 +6,8 @@ function transferCoordDataToCityDB() {
   
 
   // Define column references
-  var coordDBPostalCodeColumn = 1; // Assuming postal code is in the first column of coorddb ok
-  var coordDBLatitudeColumn = 2; // Assuming latitude is in the second column of coorddb ok
+  var coordDBPostalCodeColumn = 1; // Postcode ist in der ersten Spalte der coorddb
+  var coordDBLatitudeColumn = 2; // Latitude ist die 2 Spalte in der coorddb
   var coordDBLongitudeColumn = 3; // Assuming longitude is in the third column of coorddb ok
   var cityDBPostalCodeColumn = 1; // Assuming postal code is in column A of citydb (adjusted based on your info)
   var cityDBLatitudeColumn = 5; // Assuming latitude is in column F of citydb (adjusted based on your info)
