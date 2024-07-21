@@ -1,0 +1,62 @@
+function transferCoordDataToCityDB() {
+  // Get the active spreadsheet and worksheets
+  var spreadsheet = SpreadsheetApp.getActivegetSpreadsheet();
+  var coordDBWorksheet = spreadsheet.getSheetByName("coorddb");
+  var cityDBWorksheet =  spreadsheet.getSheetByName("citydb");
+  
+
+  // Define column references
+  var coordDBPostalCodeColumn = 1; // Assuming postal code is in the first column of coorddb ok
+  var coordDBLatitudeColumn = 2; // Assuming latitude is in the second column of coorddb ok
+  var coordDBLongitudeColumn = 3; // Assuming longitude is in the third column of coorddb ok
+  var cityDBPostalCodeColumn = 1; // Assuming postal code is in column A of citydb (adjusted based on your info)
+  var cityDBLatitudeColumn = 5; // Assuming latitude is in column F of citydb (adjusted based on your info)
+  var cityDBLongitudeColumn = 6; // Assuming longitude is in column G of citydb (adjusted based on your info)
+
+  // Transfer data based on matching postal codes
+  var cityDBRowCount = cityDBWorksheet.getLastRow(); // Assuming data starts in row 1 (adjusted based on your info)
+  for (var i = 2; i <= cityDBRowCount; i++) { // Start loop from row 2 (adjusted based on your info)
+    var cityDBPostalCode = cityDBWorksheet.getRange(cityDBPostalCodeColumn, i).getValue();
+    var cityDBLatitude = cityDBWorksheet.getRange(cityDBLatitudeColumn, i).getValue();
+    var cityDBLongitude = cityDBWorksheet.getRange(cityDBLongitudeColumn, i).getValue();
+
+    // Validate postal code format
+    if (!/^[A-Za-z0-9 ]+$/.test(cityDBPostalCode)) {
+      cityDBWorksheet.getRange(cityDBPostalCodeColumn, i).setValue("Invalid Postal Code");
+      continue; // Skip to the next iteration if the postal code is invalid
+    }
+
+    // Validate latitude and longitude values (assuming they are already numbers)
+    if (isNaN(cityDBLatitude) || isNaN(cityDBLongitude)) {
+      cityDBWorksheet.getRange(cityDBLatitudeColumn, i).setValue("Invalid Latitude");
+      cityDBWorksheet.getRange(cityDBLongitudeColumn, i).setValue("Invalid Longitude");
+      continue; // Skip to the next iteration if latitude or longitude is invalid
+    }
+
+    // Find matching postal code in coorddb and transfer coordinates
+    var coordDBPostalCodeRange = coordDBWorksheet.getRange(coordDBPostalCodeColumn, 1, 2, coordDBWorksheet.getLastRow() - 1);
+    var coordDBPostalCodes = coordDBPostalCodeRange.getValues();
+
+    var coordDBIndex = coordDBPostalCodes.indexOf(cityDBPostalCode);
+
+    if (coordDBIndex > -1) {
+      coordDBIndex++; // Adjust for row indexing
+
+      // Format latitude and longitude as numbers without decimals
+      var formattedLatitude = Math.floor(coordDBWorksheet.getRange(coordDBLatitudeColumn, coordDBIndex).getValue());
+      var formattedLongitude = Math.floor(coordDBWorksheet.getRange(coordDBLongitudeColumn, coordDBIndex).getValue());
+
+      // Apply the "0.000" format to the transferred values
+      cityDBWorksheet.getRange(cityDBLatitudeColumn, i).setNumberFormat("0.000");
+      cityDBWorksheet.getRange(cityDBLongitudeColumn, i).setNumberFormat("0.000");
+      cityDBWorksheet.getRange(cityDBPostalCodeColumn,i).setNumberFormat("0000");
+      
+
+      cityDBWorksheet.getRange(cityDBLatitudeColumn, i).setValue(formattedLatitude);
+      cityDBWorksheet.getRange(cityDBLongitudeColumn, i).setValue(formattedLongitude);
+    } else {
+      cityDBWorksheet.getRange(cityDBLatitudeColumn, i).setValue("No Match Found");
+      cityDBWorksheet.getRange(cityDBLongitudeColumn, i).setValue("No Match Found");
+    }
+  }
+}
