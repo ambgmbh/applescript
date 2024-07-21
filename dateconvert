@@ -1,0 +1,36 @@
+// Bibliothek Moment importieren
+var moment = LibraryApp.getLibrayByName("Moment");
+
+// Funktion zum Konvertieren eines Strings in ein Moment-Objekt
+function convertToDate(dateString) {
+  return moment(dateString, "YYYYMMDD"); // Format des Datumsstrings anpassen
+}
+
+// Funktion zum Ersetzen von Datumsangaben in einer Spalte
+function replaceDates(column) {
+  var sheet = SpreadsheetApp.getActiveSheet();
+  var dataRange = sheet.getDataRange();
+  var lastRow = dataRange.getLastRow();
+  var lastColumn = dataRange.getLastColumn();
+
+  // Spalte mit Datumsangaben ermitteln
+  if (column > lastColumn) {
+    throw new Error("Spaltenindex überschreitet die Anzahl der Spalten im Arbeitsblatt.");
+  }
+
+  // Datumsangaben durchlaufen und konvertieren
+  for (var i = 1; i <= lastRow; i++) {
+    var dateString = sheet.getRange(i, column).getValue();
+    var convertedDate = convertToDate(dateString);
+
+    // Nur gültige Datumsangaben konvertieren und ersetzen
+    if (convertedDate.isValid()) {
+      sheet.getRange(i, column).setValue(convertedDate.format("YYYY-MM-DD")); // Format des konvertierten Datums anpassen
+    }
+  }
+}
+
+// Beispielaufruf
+var column = 3; // Spaltenindex (1-basiert) der Spalte mit Datumsangaben
+replaceDates(column);
+
